@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nahwu Scaffolding — belajar i‘rab bertahap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="hero">
+  <nav aria-label="Lima tahap">
+    <a href="#showcase">1 Showcase</a>
+    <a href="#latihan">2–3 Latihan</a>
+    <a href="#latihan">4 Umpan balik</a>
+    <a href="#asesmen">5 Mandiri</a>
+    <a href="#dasbor">Rekam jejak</a>
+  </nav>
+  <h1>Bedah kalimat Arab, selangkah demi selangkah.</h1>
+  <p class="lead">Klik salah satu kata di bawah untuk melihat urutan analisisnya, dari aqsām al-kalimah sampai ta’līl.</p>
+  <p id="hero-sentence" class="ar big" lang="ar" dir="rtl"></p>
+  <div id="tip" class="tip" aria-live="polite"><p>Pilih sebuah kata.</p></div>
+</header>
+
+<main>
+<section id="showcase">
+  <h2>Modul materi terkurasi</h2>
+  <p>Pilih kelompok isim, lalu buka jenisnya satu per satu.</p>
+  <div id="materi-tabs" class="tabs"></div>
+  <div id="materi-body" class="card"></div>
+</section>
+
+<section id="latihan">
+  <h2>Ruang latihan terbimbing</h2>
+  <p id="lvl" class="badge"></p>
+  <p id="mode" class="mode"></p>
+  <p id="ws-sentence" class="ar big" lang="ar" dir="rtl"></p>
+  <p class="muted">Kata yang disorot dianalisis dalam lima langkah. Isi, lalu periksa.</p>
+  <div id="cols" class="cols"></div>
+  <div class="actions">
+    <button id="btn-check" class="primary">Periksa jawaban</button>
+    <button id="btn-hint">Minta petunjuk</button>
+    <button id="btn-next" class="primary" hidden>Soal berikutnya</button>
+  </div>
+  <div class="split">
+    <aside class="card"><h3>Panel petunjuk</h3><div id="hints"><p class="muted">Petunjuk muncul bertingkat setelah jawaban salah.</p></div></aside>
+    <aside class="card"><h3>Tanya diri sendiri</h3>
+      <ul><li>Apa yang sudah kamu ketahui tentang kata ini?</li><li>Kata apa di depannya yang memengaruhi i‘rabnya?</li><li>Apa bukti dari kalimat untuk jawabanmu?</li></ul></aside>
+  </div>
+  <div id="fb" class="card fb" hidden aria-live="polite"></div>
+</section>
+
+<section id="asesmen">
+  <h2>Ruang evaluasi mandiri</h2>
+  <p>Tanpa petunjuk, dropdown, atau tooltip. Tulis i‘rab dan ta’līl kata yang disorot.</p>
+  <div id="asm-body"></div>
+  <div class="actions"><button id="btn-asm" class="primary">Kumpulkan jawaban</button><button id="btn-asm-new">Soal baru</button></div>
+</section>
+
+<section id="dasbor">
+  <h2>Dasbor rekam jejak</h2>
+  <div id="dash" class="dash"></div>
+  <button id="btn-reset">Hapus rekam jejak</button>
+</section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
