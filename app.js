@@ -20,11 +20,70 @@ const MODE_TXT = {
   partial: "Bantuan sebagian: pilihan jawaban, petunjuk hanya setelah salah",
   minimal: "Bantuan minimal: ketik jawaban sendiri (fill-in-the-blank)"
 };
+const MODE_SHORT = {
+  full: "Bantuan Penuh (Full)",
+  partial: "Bantuan Sebagian (Partial)",
+  minimal: "Bantuan Minimal (Fading)"
+};
+
 function renderMode() {
   const m = mode();
-  $("#mode").textContent = MODE_TXT[m] + ` · akurasi ${Math.round(accuracy() * 100)}%`;
+  const pct = Math.round(accuracy() * 100);
+  $("#mode").textContent = MODE_TXT[m] + ` · akurasi ${pct}%`;
   $("#mode").dataset.m = m;
   $("#btn-hint").hidden = m !== "full";
+
+  // Sinkronkan indikator pada Sidebar Kiri
+  if ($("#side-mode-badge")) {
+    $("#side-mode-badge").textContent = MODE_SHORT[m];
+    $("#side-acc-bar").style.width = `${pct}%`;
+    $("#side-acc-txt").textContent = `Akurasi: ${pct}% (25 langkah terakhir)`;
+  }
+}
+
+/* ===== SIDEBAR NAVIGATION & MOBILE DRAWER ===== */
+function initSidebar() {
+  const sidebar = $("#sidebar");
+  const backdrop = $("#backdrop");
+  const navItems = document.querySelectorAll(".nav-item");
+
+  const closeMenu = () => {
+    sidebar.classList.remove("open");
+    backdrop.hidden = true;
+  };
+
+  if ($("#btn-menu")) {
+    $("#btn-menu").onclick = () => {
+      sidebar.classList.add("open");
+      backdrop.hidden = false;
+    };
+  }
+  backdrop.onclick = closeMenu;
+
+  navItems.forEach(item => {
+    item.onclick = () => {
+      navItems.forEach(n => n.classList.remove("active"));
+      item.classList.add("active");
+      closeMenu();
+    };
+  });
+
+  // Sorot menu sidebar otomatis sesuai posisi gulir (scroll)
+  const sections = ["showcase", "latihan", "asesmen", "dasbor"]
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+
+  window.addEventListener("scroll", () => {
+    const pos = window.scrollY + 180;
+    let current = "showcase";
+    for (const sec of sections) {
+      if (pos >= sec.offsetTop) current = sec.id;
+    }
+    navItems.forEach(n => {
+      if (n.dataset.jump === "fb") return;
+      n.classList.toggle("active", n.dataset.target === current);
+    });
+  }, { passive: true });
 }
 
 /* ===== TAHAP 1: showcase & modeling ===== */
@@ -35,19 +94,54 @@ function initShowcase() {
     b.classList.add("on");
     const m = MODEL[b.dataset.i];
     $("#tip").innerHTML = `<h3 lang="ar" dir="rtl">${m.w}</h3><ol>${m.s.map((v, j) =>
-      `<li style="animation-delay:${j * 0.25}s"><small>${MODEL_LABELS[j]}</small>${v}</li>`).join("")}</ol>`;
+      `<li style="animation-delay:${j * 0.18}s"><small>${MODEL_LABELS[j]}</small>${v}</li>`).join("")}</ol>`;
   });
+
   $("#materi-tabs").innerHTML = Object.entries(MATERI).map(([k, v], i) =>
     `<button data-k="${k}" class="${i ? "" : "on"}">${v.judul}</button>`).join("");
+
   const show = k => {
     const m = MATERI[k];
-    $("#materi-body").innerHTML = `<p>${m.ket}</p>` + m.jenis.map(j =>
-      `<details><summary>${j[0]}</summary><p>${j[1]}</p><p class="ar" lang="ar" dir="rtl">${j[2]}</p></details>`).join("");
+    let html = `<div class="materi-header-box"><p>${m.ket}</p></div>`;
+
+    if (m.bab) {
+      html += m.bab.map((b, idx) => `
+        <details class="bab-item" ${idx === 0 ? "open" : ""}>
+          <summary>${b.judul}</summary>
+          <div class="bab-body">
+            <div class="nazhm-box">
+              <span class="nazhm-tag">Matan Nazhm al-‘Imrīthī</span>
+              <div class="nazhm-ar" lang="ar" dir="rtl">${b.nazhm}</div>
+              <p class="nazhm-tr">“${b.terjemah}”</p>
+            </div>
+            <div class="syarah-text">${b.syarah}</div>
+          </div>
+        </details>
+      `).join("");
+    } else if (m.jenis) {
+      html += m.jenis.map(j => `
+        <details class="bab-item">
+          <summary>${j[0]}</summary>
+          <div class="bab-body">
+            <p>${j[1]}</p>
+            <div class="nazhm-box">
+              <span class="nazhm-tag">Contoh Penerapan</span>
+              <div class="nazhm-ar" lang="ar" dir="rtl">${j[2]}</div>
+            </div>
+          </div>
+        </details>
+      `).join("");
+    }
+
+    $("#materi-body").innerHTML = html;
   };
+
   document.querySelectorAll("#materi-tabs button").forEach(b => b.onclick = () => {
     document.querySelectorAll("#materi-tabs button").forEach(x => x.classList.remove("on"));
-    b.classList.add("on"); show(b.dataset.k);
+    b.classList.add("on");
+    show(b.dataset.k);
   });
+
   show("marfu");
 }
 
@@ -92,9 +186,9 @@ function check() {
 function feedback(it) {
   const miss = STEPS.filter(s => !st.first[s.k]);
   $("#fb").hidden = false; $("#btn-check").hidden = true; $("#btn-next").hidden = false;
-  $("#fb").innerHTML = `<h3>Umpan balik</h3><div class="chips">${STEPS.map(s =>
+  $("#fb").innerHTML = `<h3>Umpan Balik Formatif</h3><div class="chips">${STEPS.map(s =>
     `<span class="chip ${st.first[s.k] ? "ok" : "bad"}">${s.n}: ${it.a[s.k]}</span>`).join("")}</div>
-    <p class="talil" lang="ar"><b>Ta’līl:</b> ${tailText(it)}</p>` +
+    <p class="talil"><b>Ta’līl:</b> ${tailText(it)}</p>` +
     (miss.length ? `<h4>Miskonsepsi yang perlu diluruskan</h4><ul>${miss.map(s => `<li><b>${s.n}.</b> ${DIAG[s.k]}</li>`).join("")}</ul>`
       : `<p>Semua langkah benar pada percobaan pertama.</p>`);
 }
@@ -129,9 +223,9 @@ function renderDash() {
   $("#dash").innerHTML = s.length || as.length ? `
     <div><h4>Akurasi per langkah</h4>${STEPS.map(x => bar(x.n, rate(s.filter(e => e.step === x.k)))).join("")}</div>
     <div><h4>Akurasi per level</h4>${[1, 2, 3].map(v => bar("Level " + v, rate(s.filter(e => e.lv === v)))).join("")}
-    <h4>Asesmen mandiri</h4>${as.length ? as.slice(-4).map((e, i) => bar("Percobaan " + (as.length - Math.min(4, as.length) + i + 1), e.score)).join("") : "<p>Belum ada asesmen.</p>"}</div>
-    <div><h4>Ringkasan</h4><p>${s.length} langkah dijawab · ${l.filter(e => e.type === "hint").length} petunjuk dipakai</p><p>Mode perancah: <b>${MODE_TXT[mode()]}</b></p></div>`
-    : `<p>Belum ada rekam jejak. Mulai dari Ruang Latihan, lalu kembali ke sini.</p>`;
+    <h4>Asesmen mandiri</h4>${as.length ? as.slice(-4).map((e, i) => bar("Percobaan " + (as.length - Math.min(4, as.length) + i + 1), e.score)).join("") : "<p class='muted'>Belum ada asesmen.</p>"}</div>
+    <div><h4>Ringkasan Aktivitas</h4><p>${s.length} langkah dijawab · ${l.filter(e => e.type === "hint").length} petunjuk dipakai</p><p>Mode perancah: <b>${MODE_TXT[mode()]}</b></p></div>`
+    : `<div style="grid-column:1/-1"><p class="muted">Belum ada rekam jejak. Mulai dari Ruang Latihan Terbimbing, lalu kembali ke sini untuk melihat grafik akurasi.</p></div>`;
 }
 
 $("#btn-check").onclick = check;
@@ -143,4 +237,9 @@ $("#btn-hint").onclick = () => {
 $("#btn-asm").onclick = submitAssess;
 $("#btn-asm-new").onclick = startAssess;
 $("#btn-reset").onclick = () => confirm("Hapus semua rekam jejak?") && DB.reset();
-initShowcase(); loadItem(); startAssess(); renderDash();
+
+initSidebar();
+initShowcase();
+loadItem();
+startAssess();
+renderDash();
