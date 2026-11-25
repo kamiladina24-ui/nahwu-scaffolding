@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -30,22 +30,22 @@
       <a href="#showcase" class="nav-item active" data-target="showcase">
         <span class="nav-num">01</span>
         <span class="nav-text">
-          <strong>Showcase &amp; Modeling</strong>
-          <small>Bedah kalimat &amp; kitab materi</small>
+          <strong>Bedah Nash &amp; Kitab</strong>
+          <small>Klik kata Arab &amp; takhrij kaidah</small>
+        </span>
+      </a>
+      <a href="#modul-materi" class="nav-item" data-target="modul-materi">
+        <span class="nav-num">02</span>
+        <span class="nav-text">
+          <strong>Modul Marfū‘āt</strong>
+          <small>Nazhm al-‘Imrīthī &amp; Syarah</small>
         </span>
       </a>
       <a href="#latihan" class="nav-item" data-target="latihan">
-        <span class="nav-num">02</span>
+        <span class="nav-num">03</span>
         <span class="nav-text">
           <strong>Latihan &amp; Tiered Hints</strong>
           <small>Analisis mikro 5 langkah</small>
-        </span>
-      </a>
-      <a href="#latihan" class="nav-item" data-target="latihan" data-jump="fb">
-        <span class="nav-num">03</span>
-        <span class="nav-text">
-          <strong>Umpan Balik Formatif</strong>
-          <small>Ta’līl &amp; diagnosis miskonsepsi</small>
         </span>
       </a>
       <a href="#asesmen" class="nav-item" data-target="asesmen">
@@ -67,7 +67,7 @@
     <div class="sidebar-footer">
       <div class="scaffold-status">
         <span class="status-label">Status Perancah Aktif</span>
-        <strong id="side-mode-badge">Bantuan Penuh</strong>
+        <strong id="side-mode-badge">Bantuan Penuh (Full)</strong>
         <div class="mini-meter"><i id="side-acc-bar" style="width:0%"></i></div>
         <small id="side-acc-txt">Akurasi: 0% (25 langkah terakhir)</small>
       </div>
@@ -79,17 +79,30 @@
   <!-- AREA KONTEN UTAMA -->
   <div class="workspace">
     <header id="showcase" class="hero">
-      <div class="eyebrow">Tahap 1 · Pemodelan Kognitif &amp; Eksplorasi Tarkīb</div>
-      <h1>Bedah kalimat Arab, selangkah demi selangkah.</h1>
-      <p class="lead">Klik salah satu lafaz di bawah untuk menelusuri urutan analisis gramatikalnya, mulai dari <em>aqsām al-kalimah</em> hingga <em>ta’līl</em>.</p>
+      <div class="eyebrow">Tahap 1 · Bedah Nash Kitab Berbasis Rujukan Mu‘tabar</div>
+      <h1>Bedah teks kitab turāts, kata demi kata.</h1>
+      <p class="lead">Klik lafaz Arab mana pun pada nash kitab di bawah untuk melihat rincian jenis kata, jabatan, alamat i‘rab, hingga <em>ta’līl</em> beserta <strong>sitasi eksplisit dari kitab rujukan</strong>.</p>
 
-      <div class="sentence-stage">
-        <div class="stage-hint">Klik kata pada kalimat berikut:</div>
-        <div id="hero-sentence" class="ar big" lang="ar" dir="rtl"></div>
-      </div>
+      <!-- LEMBAR BACA KITAB INTERAKTIF (TERVALIDASI RUJUKAN) -->
+      <div class="kitab-reader">
+        <div class="reader-topbar">
+          <div>
+            <span id="reader-book-meta" class="reader-meta"></span>
+            <h2 id="reader-book-title" class="reader-title"></h2>
+            <div class="source-lock-note">Sumber analisis terkunci pada: <strong>Alfiyyah Ibnu Mālik</strong>, <strong>Syarḥ Ibnu ‘Aqīl</strong>, &amp; <strong>Nazhm al-‘Imrīthī (Syarḥ Ya‘nī)</strong></div>
+          </div>
+          <div id="reader-chapter-tabs" class="chapter-pills"></div>
+        </div>
 
-      <div id="tip" class="tip" aria-live="polite">
-        <p class="tip-placeholder">Pilih salah satu lafaz di atas untuk memunculkan rincian i‘rab.</p>
+        <div class="sentence-stage">
+          <div class="stage-hint">Klik kata pada nash kitab di bawah untuk melihat analisis gramatikal &amp; takhrij kaidahnya:</div>
+          <div id="hero-sentence" class="ar big-kitab" lang="ar" dir="rtl"></div>
+        </div>
+
+        <!-- PANEL HASIL ANALISIS KATA YANG DIKLIK -->
+        <div id="tip" class="tip" aria-live="polite">
+          <p class="tip-placeholder">Klik salah satu kata Arab di atas untuk memunculkan kartu analisis <em>aqsām al-kalimah</em> hingga <em>ta’līl</em> beserta rujukan baitnya.</p>
+        </div>
       </div>
     </header>
 
@@ -97,7 +110,7 @@
       <section id="modul-materi" class="panel-section">
         <div class="section-head">
           <div>
-            <span class="kicker">Rujukan Nazhm al-‘Imrīthī &amp; Syarah</span>
+            <span class="kicker">Rujukan Nazhm al-‘Imrīthī &amp; Syarah (Ya‘nī)</span>
             <h2>Modul Materi Terkurasi</h2>
           </div>
           <p class="muted">Pilih kelompok kedudukan isim, lalu buka setiap bab dan bait nazhm secara bertahap.</p>
@@ -179,7 +192,7 @@
   </div>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
