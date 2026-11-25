@@ -33,7 +33,6 @@ function renderMode() {
   $("#mode").dataset.m = m;
   $("#btn-hint").hidden = m !== "full";
 
-  // Sinkronkan indikator pada Sidebar Kiri
   if ($("#side-mode-badge")) {
     $("#side-mode-badge").textContent = MODE_SHORT[m];
     $("#side-acc-bar").style.width = `${pct}%`;
@@ -68,8 +67,7 @@ function initSidebar() {
     };
   });
 
-  // Sorot menu sidebar otomatis sesuai posisi gulir (scroll)
-  const sections = ["showcase", "latihan", "asesmen", "dasbor"]
+  const sections = ["showcase", "modul-materi", "latihan", "asesmen", "dasbor"]
     .map(id => document.getElementById(id))
     .filter(Boolean);
 
@@ -80,22 +78,83 @@ function initSidebar() {
       if (pos >= sec.offsetTop) current = sec.id;
     }
     navItems.forEach(n => {
-      if (n.dataset.jump === "fb") return;
       n.classList.toggle("active", n.dataset.target === current);
     });
   }, { passive: true });
 }
 
-/* ===== TAHAP 1: showcase & modeling ===== */
-function initShowcase() {
-  $("#hero-sentence").innerHTML = MODEL.map((m, i) => `<button class="w" data-i="${i}">${m.w}</button>`).join(" ");
-  document.querySelectorAll(".w").forEach(b => b.onclick = () => {
-    document.querySelectorAll(".w").forEach(x => x.classList.remove("on"));
-    b.classList.add("on");
-    const m = MODEL[b.dataset.i];
-    $("#tip").innerHTML = `<h3 lang="ar" dir="rtl">${m.w}</h3><ol>${m.s.map((v, j) =>
-      `<li style="animation-delay:${j * 0.18}s"><small>${MODEL_LABELS[j]}</small>${v}</li>`).join("")}</ol>`;
+/* ===== TAHAP 1: Kitab Tervalidasi & Pemodelan Analisis Kata ===== */
+let activeKitabIdx = 0;
+let activePasalIdx = 0;
+
+function renderKitabReader() {
+  const kitab = KITAB_LIBRARY[activeKitabIdx];
+  const pasal = kitab.pasal[activePasalIdx] || kitab.pasal[0];
+
+  $("#reader-book-meta").textContent = `${kitab.pengarang} · ${pasal.nama}`;
+  $("#reader-book-title").textContent = kitab.judul;
+
+  $("#reader-chapter-tabs").innerHTML = kitab.pasal.map((p, idx) =>
+    `<button type="button" class="${idx === activePasalIdx ? "on" : ""}" data-p="${idx}">${p.nama}</button>`
+  ).join("");
+
+  document.querySelectorAll("#reader-chapter-tabs button").forEach(btn => {
+    btn.onclick = () => {
+      activePasalIdx = Number(btn.dataset.p);
+      renderKitabReader();
+    };
   });
+
+  $("#hero-sentence").innerHTML = pasal.tokens.map((t, i) =>
+    `<button type="button" class="w" data-i="${i}">${t.w}</button>`
+  ).join(" ");
+
+  $("#tip").innerHTML = `<p class="tip-placeholder">Klik salah satu lafaz Arab pada <strong>${pasal.nama}</strong> di atas untuk melihat rincian analisis dan rujukan kitabnya.</p>`;
+
+  document.querySelectorAll("#hero-sentence .w").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#hero-sentence .w").forEach(x => x.classList.remove("on"));
+      btn.classList.add("on");
+
+      const tok = pasal.tokens[Number(btn.dataset.i)];
+      $("#tip").innerHTML = `
+        <div class="tip-header">
+          <span class="tip-badge">Termasuk Kata: ${tok.qism}</span>
+          <h3 lang="ar" dir="rtl">${tok.w}</h3>
+        </div>
+        <div class="tip-grid">
+          <div class="tip-cell">
+            <small>1. Aqsām al-Kalimah</small>
+            <strong>${tok.qism}</strong>
+          </div>
+          <div class="tip-cell">
+            <small>2. Hukum I‘rab</small>
+            <strong>${tok.hukum}</strong>
+          </div>
+          <div class="tip-cell">
+            <small>3. Jabatan (Mawqi‘)</small>
+            <strong>${tok.jabatan}</strong>
+          </div>
+          <div class="tip-cell">
+            <small>4. Alamat I‘rab</small>
+            <strong>${tok.alamat}</strong>
+          </div>
+          <div class="tip-cell full-span">
+            <small>5. Ta’līl (Argumentasi Gramatikal)</small>
+            <span>${tok.talil}</span>
+          </div>
+          <div class="tip-cell full-span ref-cell">
+            <small>6. Rujukan Kaidah (Takhrij Kitab)</small>
+            <strong>${tok.ref}</strong>
+          </div>
+        </div>
+      `;
+    };
+  });
+}
+
+function initShowcase() {
+  renderKitabReader();
 
   $("#materi-tabs").innerHTML = Object.entries(MATERI).map(([k, v], i) =>
     `<button data-k="${k}" class="${i ? "" : "on"}">${v.judul}</button>`).join("");
